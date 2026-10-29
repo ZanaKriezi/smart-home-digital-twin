@@ -1,0 +1,77 @@
+{
+  // Synthetic load profiles. Power values are in kW, durations in minutes.
+  // Program energy per run: oven ~1.0 kWh, kettle 0.1 kWh, dishwasher ~1.3 kWh, washing machine ~1.0 kWh.
+  // Fridge: 0.15 kW compressor running 35 % of the time, ~1.3 kWh per day.
+  "applianceProfiles": [
+    { "deviceId": "fridge", "mode": "Cooling", "coolingPowerKw": 0.15, "coolingCycleMinutes": 40, "coolingDutyCycle": 0.35 },
+    { "deviceId": "oven", "mode": "Program", "phases": [
+        { "minutes": 15, "powerKw": 2.5 },   // preheating at full power
+        { "minutes": 30, "powerKw": 1.3 } ]  // thermostat holds the temperature
+    },
+    { "deviceId": "kettle", "mode": "Program", "phases": [ { "minutes": 3, "powerKw": 2.0 } ] },
+    { "deviceId": "dishwasher", "mode": "Program", "phases": [
+        { "minutes": 20, "powerKw": 1.8 },   // heating water for the main wash
+        { "minutes": 40, "powerKw": 0.15 },  // washing (pump)
+        { "minutes": 20, "powerKw": 1.8 },   // heating for the hot rinse
+        { "minutes": 40, "powerKw": 0.05 } ] // drying
+    },
+    { "deviceId": "washing-machine", "mode": "Program", "phases": [
+        { "minutes": 20, "powerKw": 2.0 },   // heating water
+        { "minutes": 70, "powerKw": 0.2 },   // washing and rinsing (drum motor)
+        { "minutes": 15, "powerKw": 0.5 },   // spinning
+        { "minutes": 15, "powerKw": 0.1 } ]  // pumping out and finishing
+    }
+  ],
+
+  "scenarios": [
+    {
+      "id": "normal",
+      "name": "Normal day",
+      "description": "Typical weekday with regular kitchen use and average solar output.",
+      "seed": 42,
+      "startDate": "2026-04-15",
+      "initialBatterySocPercent": 50,
+      "solar": { "sunriseHour": 6.5, "sunsetHour": 19.75, "peakOutputKw": 3.0, "cloudVariability": 0.2 },
+      "usages": [
+        { "deviceId": "kettle", "start": "07:00:00", "jitterMinutes": 15 },
+        { "deviceId": "washing-machine", "start": "10:00:00", "jitterMinutes": 30 },
+        { "deviceId": "kettle", "start": "10:30:00", "jitterMinutes": 20 },
+        { "deviceId": "kettle", "start": "16:00:00", "jitterMinutes": 20 },
+        { "deviceId": "oven", "start": "18:30:00", "jitterMinutes": 20, "durationMinutes": 45 },
+        { "deviceId": "kettle", "start": "20:00:00", "jitterMinutes": 15 },
+        { "deviceId": "dishwasher", "start": "20:30:00", "jitterMinutes": 15 }
+      ]
+    },
+    {
+      "id": "high-consumption",
+      "name": "High consumption",
+      "description": "Winter evening peak: oven, kettle and dishwasher run at the same time while there is almost no solar output.",
+      "seed": 42,
+      "startDate": "2026-01-14",
+      "initialBatterySocPercent": 30,
+      "solar": { "sunriseHour": 7.75, "sunsetHour": 16.5, "peakOutputKw": 0.5, "cloudVariability": 0.3 },
+      "usages": [
+        { "deviceId": "kettle", "start": "07:00:00", "jitterMinutes": 10 },
+        { "deviceId": "washing-machine", "start": "08:00:00", "jitterMinutes": 15 },
+        { "deviceId": "oven", "start": "18:00:00", "durationMinutes": 60 },
+        { "deviceId": "dishwasher", "start": "18:00:00" },
+        { "deviceId": "kettle", "start": "18:05:00" },
+        { "deviceId": "kettle", "start": "18:40:00" }
+      ]
+    },
+    {
+      "id": "high-solar",
+      "name": "High solar",
+      "description": "Sunny summer day with low kitchen use.",
+      "seed": 42,
+      "startDate": "2026-06-17",
+      "initialBatterySocPercent": 30,
+      "solar": { "sunriseHour": 5.25, "sunsetHour": 21.0, "peakOutputKw": 4.2, "cloudVariability": 0.05 },
+      "usages": [
+        { "deviceId": "kettle", "start": "07:30:00", "jitterMinutes": 15 },
+        { "deviceId": "kettle", "start": "15:00:00", "jitterMinutes": 20 },
+        { "deviceId": "dishwasher", "start": "21:00:00", "jitterMinutes": 15 }
+      ]
+    }
+  ]
+}
